@@ -73,10 +73,11 @@ async function venderProducto(body){
         emailDueño: body.emailDueño,
         añoProducto: body.añoProducto,
         precioInicial: body.precioInicial,
-        tiempoInicial: new Date("<YYYY-mm-dd>"),
+        tiempoInicial: body.tiempoInicial,
         tiempoFinal: body.tiempoFinal,
         nombreObjeto: body.nombreObjeto,
-        descripcionObjeto: body.descripcionObjeto
+        descripcionObjeto: body.descripcionObjeto,
+        imagen: body.imagen
     })
 
     return await producto.save();
