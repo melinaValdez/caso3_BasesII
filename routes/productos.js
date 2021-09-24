@@ -26,8 +26,8 @@ ruta.post('/', (req, res) => {
     })
 });
 
-ruta.put('/:nombreProducto', (req, res) => {
-    let resultado = actualizarOferta(req.params.nombreObjeto, req.body);
+ruta.put('/:id', (req, res) => {
+    let resultado = actualizarOferta(req.params.id, req.body);
     resultado.then(valor => {
         res.json({
             valor: valor
@@ -39,8 +39,8 @@ ruta.put('/:nombreProducto', (req, res) => {
     })
 });
 
-ruta.delete('/:nombreObjeto', (req, res) =>{
-    let resultado = quitarDisponibilidad(req.params.nombreObjeto);
+ruta.delete('/:id', (req, res) =>{
+    let resultado = quitarDisponibilidad(req.params.id);
     resultado.then (valor =>{
         res.json({
             usuario: valor
@@ -57,12 +57,11 @@ async function listarProductosDisponibles(){
     return productos;
 }
 
-async function quitarDisponibilidad(nombreObjeto){
-    let producto = await Producto.findOneAndUpdate(nombreObjeto, {
-        $set: {
-            disponible: false
-        }
-    }, {new: true});
+async function quitarDisponibilidad(id){
+    let producto = await Producto.findOneAndUpdate(
+        {"_id" : id}, 
+        { $set: { disponible :  false } }
+        );
     
     return producto;
 }
@@ -73,6 +72,7 @@ async function venderProducto(body){
         emailDueño: body.emailDueño,
         añoProducto: body.añoProducto,
         precioInicial: body.precioInicial,
+        mejorOferta :  body.mejorOferta,
         tiempoInicial: body.tiempoInicial,
         tiempoFinal: body.tiempoFinal,
         nombreObjeto: body.nombreObjeto,
@@ -83,12 +83,11 @@ async function venderProducto(body){
     return await producto.save();
 }
 
-async function actualizarOferta(nombreObjeto, body){
-    let producto = await Producto.findOneAndUpdate(nombreObjeto, {
-        $set: { 
-            mejorOferta: body.mejorOferta
-        }
-    }, {new: true});
+async function actualizarOferta(id, body){
+    let producto = await Producto.findOneAndUpdate(
+        {"_id" : id}, 
+        { $set: { mejorOferta :  body.mejorOferta } }
+        );
     return producto;
 }
 
