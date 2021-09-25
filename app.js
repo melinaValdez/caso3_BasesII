@@ -2,6 +2,8 @@ const productos = require('./routes/productos');
 const express = require('express');
 const mongoose = require('mongoose');
 
+mongoose.set('useFindAndModify', false);
+
 //Conectarnos a la BD
 mongoose.connect('mongodb://localhost:27017/demo', {useNewUrlParser: true, useUnifiedTopology: true})
     .then(() => console.log('Conectado a MongoDB...'))
