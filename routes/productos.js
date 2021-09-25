@@ -6,10 +6,32 @@ ruta.get('/',(req, res) => {
     let resultado = listarProductosDisponibles();
     resultado.then(productos => {
         res.json(productos);
-    }).catch(err => {
-        res.status(400).json(err);
-    })
-})
+    })    
+    .catch((error)=>{
+        result = res.status(500).json({
+            error: true,
+            message: `Error: ${error}`,
+            code: 0
+        });
+    });
+});
+
+ruta.get('/fil/:filtro',(req, res) => {
+    let resultado = filtro(req.params.filtro, req.body);
+    resultado.then(objeto => {
+        res.json({
+            valor: objeto
+        })
+    })    
+    .catch((error)=>{
+        result = res.status(500).json({
+            error: true,
+            message: `Error: ${error}`,
+            code: 0
+        });
+    });
+});
+
 
 ruta.post('/', (req, res) => {
     let body = req.body;
@@ -19,11 +41,14 @@ ruta.post('/', (req, res) => {
         res.json({
             valor: objeto
         })
-    }).catch (err => {
-        res.status(400).json({
-            error: err
-        })
-    })
+    })    
+    .catch((error)=>{
+        result = res.status(500).json({
+            error: true,
+            message: `Error: ${error}`,
+            code: 0
+        });
+    });
 });
 
 ruta.put('/:id', (req, res) => {
@@ -32,11 +57,14 @@ ruta.put('/:id', (req, res) => {
         res.json({
             valor: valor
         })
-    }).catch(err => {
-        res.status(400).json({
-            error: err
-        })
-    })
+    })    
+    .catch((error)=>{
+        result = res.status(500).json({
+            error: true,
+            message: `Error: ${error}`,
+            code: 0
+        });
+    });
 });
 
 ruta.delete('/:id', (req, res) =>{
@@ -45,17 +73,22 @@ ruta.delete('/:id', (req, res) =>{
         res.json({
             usuario: valor
         })
-    }). catch(err => {
-        res.status(400).json({
-            error: err
-        })
-    })
+    })    
+    .catch((error)=>{
+        result = res.status(500).json({
+            error: true,
+            message: `Error: ${error}`,
+            code: 0
+        });
+    });
 });
 
 async function listarProductosDisponibles(){
     let productos = await Producto.find({"disponible": true});
     return productos;
 }
+
+
 
 async function quitarDisponibilidad(id){
     let producto = await Producto.findOneAndUpdate(
@@ -73,8 +106,8 @@ async function venderProducto(body){
         añoProducto: body.añoProducto,
         precioInicial: body.precioInicial,
         mejorOferta :  body.mejorOferta,
-        tiempoInicial: body.tiempoInicial,
-        tiempoFinal: body.tiempoFinal,
+        tiempoInicial:  new Date().toISOString(),
+        tiempoFinal: new Date(body.tiempoFinal).toISOString(),
         nombreObjeto: body.nombreObjeto,
         descripcionObjeto: body.descripcionObjeto,
         imagen: body.imagen
@@ -91,6 +124,9 @@ async function actualizarOferta(id, body){
     return producto;
 }
 
-
+async function filtro(filtro, body){
+    let productos = await Producto.find(body);   
+    return productos;
+}
 
 module.exports = ruta;
