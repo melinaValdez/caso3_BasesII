@@ -6,10 +6,32 @@ ruta.get('/',(req, res) => {
     let resultado = listarProductosDisponibles();
     resultado.then(productos => {
         res.json(productos);
-    }).catch(err => {
-        res.status(400).json(err);
-    })
-})
+    })    
+    .catch((error)=>{
+        result = res.status(500).json({
+            error: true,
+            message: `Error: ${error}`,
+            code: 0
+        });
+    });
+});
+
+ruta.get('/fil/:filtro',(req, res) => {
+    let resultado = filtro(req.params.filtro, req.body);
+    resultado.then(objeto => {
+        res.json({
+            valor: objeto
+        })
+    })    
+    .catch((error)=>{
+        result = res.status(500).json({
+            error: true,
+            message: `Error: ${error}`,
+            code: 0
+        });
+    });
+});
+
 
 ruta.post('/', (req, res) => {
     let body = req.body;
@@ -19,37 +41,46 @@ ruta.post('/', (req, res) => {
         res.json({
             valor: objeto
         })
-    }).catch (err => {
-        res.status(400).json({
-            error: err
-        })
-    })
+    })    
+    .catch((error)=>{
+        result = res.status(500).json({
+            error: true,
+            message: `Error: ${error}`,
+            code: 0
+        });
+    });
 });
 
-ruta.put('/:nombreProducto', (req, res) => {
-    let resultado = actualizarOferta(req.params.nombreObjeto, req.body);
+ruta.put('/:id', (req, res) => {
+    let resultado = actualizarOferta(req.params.id, req.body);
     resultado.then(valor => {
         res.json({
             valor: valor
         })
-    }).catch(err => {
-        res.status(400).json({
-            error: err
-        })
-    })
+    })    
+    .catch((error)=>{
+        result = res.status(500).json({
+            error: true,
+            message: `Error: ${error}`,
+            code: 0
+        });
+    });
 });
 
-ruta.delete('/:nombreObjeto', (req, res) =>{
-    let resultado = quitarDisponibilidad(req.params.nombreObjeto);
+ruta.delete('/:id', (req, res) =>{
+    let resultado = quitarDisponibilidad(req.params.id);
     resultado.then (valor =>{
         res.json({
             usuario: valor
         })
-    }). catch(err => {
-        res.status(400).json({
-            error: err
-        })
-    })
+    })    
+    .catch((error)=>{
+        result = res.status(500).json({
+            error: true,
+            message: `Error: ${error}`,
+            code: 0
+        });
+    });
 });
 
 async function listarProductosDisponibles(){
@@ -57,12 +88,13 @@ async function listarProductosDisponibles(){
     return productos;
 }
 
-async function quitarDisponibilidad(nombreObjeto){
-    let producto = await Producto.findOneAndUpdate(nombreObjeto, {
-        $set: {
-            disponible: false
-        }
-    }, {new: true});
+
+
+async function quitarDisponibilidad(id){
+    let producto = await Producto.findOneAndUpdate(
+        {"_id" : id}, 
+        { $set: { disponible :  false } }
+        );
     
     return producto;
 }
@@ -73,24 +105,28 @@ async function venderProducto(body){
         emailDueño: body.emailDueño,
         añoProducto: body.añoProducto,
         precioInicial: body.precioInicial,
-        tiempoInicial: new Date("<YYYY-mm-dd>"),
-        tiempoFinal: body.tiempoFinal,
+        mejorOferta :  body.mejorOferta,
+        tiempoInicial:  new Date().toISOString(),
+        tiempoFinal: new Date(body.tiempoFinal).toISOString(),
         nombreObjeto: body.nombreObjeto,
-        descripcionObjeto: body.descripcionObjeto
+        descripcionObjeto: body.descripcionObjeto,
+        imagen: body.imagen
     })
 
     return await producto.save();
 }
 
-async function actualizarOferta(nombreObjeto, body){
-    let producto = await Producto.findOneAndUpdate(nombreObjeto, {
-        $set: { 
-            mejorOferta: body.mejorOferta
-        }
-    }, {new: true});
+async function actualizarOferta(id, body){
+    let producto = await Producto.findOneAndUpdate(
+        {"_id" : id}, 
+        { $set: { mejorOferta :  body.mejorOferta } }
+        );
     return producto;
 }
 
-
+async function filtro(filtro, body){
+    let productos = await Producto.find(body);   
+    return productos;
+}
 
 module.exports = ruta;
